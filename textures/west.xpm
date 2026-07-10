@@ -1,0 +1,5 @@
+/* XPM */
+static char *west[] = {
+"1 1 1 1",
+"c c #FF0000",
+"c"};
