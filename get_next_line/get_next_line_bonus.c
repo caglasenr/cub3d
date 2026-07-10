@@ -1,0 +1,118 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: csener <csener@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/16 14:46:09 by csener            #+#    #+#             */
+/*   Updated: 2025/08/12 13:49:29 by csener           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "get_next_line_bonus.h"
+#include <stdlib.h>
+#include <unistd.h>
+
+static char	*read_loop(int fd, char *storage, char *buffer)
+{
+	char	*temp;
+	ssize_t	bytes_read;
+
+	bytes_read = 1;
+	while (!ft_strchr(storage, '\n') && bytes_read > 0)
+	{
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read == -1)
+		{
+			free(storage);
+			return (NULL);
+		}
+		buffer[bytes_read] = '\0';
+		temp = storage;
+		storage = ft_strjoin(temp, buffer);
+		free(temp);
+		if (!storage)
+			return (NULL);
+	}
+	return (storage);
+}
+
+static char	*read_and_join(int fd, char *storage)
+{
+	char	*buffer;
+
+	if (!storage)
+		storage = ft_strdup("");
+	if (!storage)
+		return (NULL);
+	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buffer)
+	{
+		free(storage);
+		return (NULL);
+	}
+	storage = read_loop(fd, storage, buffer);
+	free(buffer);
+	return (storage);
+}
+
+static char	*extract_line(char *storage)
+{
+	char	*line;
+	int		i;
+
+	if (!storage || !storage[0])
+		return (NULL);
+	i = 0;
+	while (storage[i] && storage[i] != '\n')
+		i++;
+	if (storage[i] == '\n')
+		i++;
+	line = ft_substr(storage, 0, i);
+	return (line);
+}
+
+static char	*update_storage(char *storage)
+{
+	char	*new_storage;
+	char	*nl_ptr;
+
+	if (!storage)
+		return (NULL);
+	nl_ptr = ft_strchr(storage, '\n');
+	if (!nl_ptr)
+	{
+		free(storage);
+		return (NULL);
+	}
+	if (*(nl_ptr + 1) == '\0')
+	{
+		free(storage);
+		return (NULL);
+	}
+	new_storage = ft_substr(nl_ptr, 1, ft_strlen(nl_ptr + 1));
+	free(storage);
+	return (new_storage);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*storage[1024];
+	char		*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd >= 1024)
+		return (NULL);
+	storage[fd] = read_and_join(fd, storage[fd]);
+	if (!storage[fd])
+		return (NULL);
+	line = extract_line(storage[fd]);
+	if (!line)
+	{
+		free(storage[fd]);
+		storage[fd] = NULL;
+		return (NULL);
+	}
+	storage[fd] = update_storage(storage[fd]);
+	return (line);
+}

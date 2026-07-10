@@ -1,0 +1,12 @@
+# Compiled objects & libraries
+*.o
+*.a
+
+# Executable
+cub3D
+
+# macOS
+.DS_Store
+
+# MiniLibX build artifacts (raycaster'a başlayınca)
+minilibx-linux/*.o
