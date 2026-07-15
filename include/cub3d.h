@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: csener <csener@student.42.fr>              +#+  +:+       +#+        */
+/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 16:26:59 by csener            #+#    #+#             */
-/*   Updated: 2025/06/20 16:35:19 by csener           ###   ########.fr       */
+/*   Updated: 2026/07/14 19:38:24 by caglasener       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,36 @@
 # include <fcntl.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <math.h>
 
+# define WIN_W 1280
+# define WIN_H 720
+
+typedef struct s_player
+{
+	double	pos_x;
+	double	pos_y;
+	double	dir_x;
+	double	dir_y;
+	double	plane_x;
+	double	plane_y;
+}	t_player;
+
+typedef struct s_ray
+{
+    int map_x;
+    int map_y;
+    int step_x;
+    int step_y;
+    int side;
+    double ray_dir_x;
+    double ray_dir_y;
+    double delta_dist_x;
+    double delta_dist_y;
+    double side_dist_x;
+    double side_dist_y;
+    double perp_wall_dist;
+}	t_ray;
 /*
 ** t_config: the parser's output and the data contract with the raycaster.
 ** floor/ceiling hold R,G,B; each channel is -1 until the element is parsed.
@@ -97,5 +126,10 @@ int		is_space(char c);
 int		is_empty_line(char *line);
 void	free_split(char **arr);
 void	free_config(t_config *cfg);
+
+/* ---- raycasting (src/raycasting/) ---- */
+void	init_player(t_config *cfg, t_player *player);
+void	cast_ray(t_player *player, t_config *cfg, double camera_x, t_ray *ray);
+void	wall_height(t_ray *ray, int *draw_start, int *draw_end);
 
 #endif
