@@ -1,13 +1,64 @@
 #include "cub3d.h"
-void draw_backgraund(t_img *frame, t_config *config)
+/*
+mlx te frame->adr ekranın bütün piksellerini yan yana dizilmiş tek boyutlu byte dizisi olarak tutuyoriki boyutlu değil 
+img->addr başlangıç adresimiz 
+her satırın byte cinsinden uzunluğu img->line_len
+yani y tane satır y*img->line_len byte ilerde
+satır içinde hangi pikselde olduğumuzu bulmak için de  
+öncelikle her piksel img->bpp / 8 byte yer kaplar yani x numaralı piksele gitmek için x*(img->bpp/8) byte ileri gideriz
+yani istediğimiz piksele gitmek için önce satırını bulup ona o satırdaki boyutunu ekleyeceğiz 
+img->addr + (y*img->line_len) + (x*(img->bpp / 8)) == başlangıç adresi + satır+sütün gibi düşün
+*/
+void put_pixel(t_img *img, int x, int y, int color)
 {
-
+    if (x < 0 || y < 0 || x >= img->width || y >= img->height)
+        return ;
+    *(int *)(img->addr + y * img->line_len + x * (img->bpp / 8)) = color;
 }
+/*
+mlx e rengi int formatında istiyor
+bir satırı boyamadan önce bakıyoruz o satır gökyüzü mü floor mu 
+onu döngüye girmeden eksktra başta bir kere hesaplayıp ona göre 
+put_pixel ile boyuyoruz
+*/
+void draw_background(t_img *frame, t_config *config)
+{
+    int ceiling_color;
+    int floor_color;
+    int color;
+    int x;
+    int y;
+    ceiling_color = (config->ceiling[0] << 16) | (config->ceiling[1] << 8) | (config->ceiling[2]);
+    floor_color = (config->floor[0] << 16) | (config->floor[1] << 8) | (config->floor[2]);
+    y = 0;
+    while(y < frame->height)
+    {
+        if(y < frame->height / 2)
+            color = ceiling_color;
+        else
+            color = floor_color;
+        x = 0;
+        while(x < frame->width)
+        {
+            put_pixel(frame,x,y,color);
+            x++;
+        }
+        y++;
+    }
+}
+
 void cast_ray(t_player *player, t_config *cfg, )
 {
 
 }
+void wall_height(t_ray *ray, int *draw_start, int *draw_end)
+{
 
+}
+void draw_column(t_img *frame, t_img *texture,t_ray *ray, int x, int *draw_start,int *draw_end)
+{
+
+}
 void render_frame(t_img *frame, t_player *player, t_config *cfg, t_img *textures)
 {
     draw_background(frame, cfg);
@@ -62,11 +113,4 @@ render_frame
      └─ draw_column           (henüz yok — texture'lı çizim)
 ```
 
-`cast_ray` ve `wall_height`'ın mantığını zaten test etmişsin (`dda_test.c`); gerçek gövdelerini `t_ray`/`t_player`/`t_config` imzasına uydurup taşıman lazım. Şimdi sırada `draw_background` mı yoksa `draw_column` mı — hangisiyle başlamak istersin?
-
-Push hâlâ 403 ile başarısız — bu proxy/yetki katmanından geliyor (`127.0.0.1:41729` yerel git proxy'si), imza sorunuyla ilgisi yok. Commit lokalde duruyor (`c4a9641`, author zaten `Claude <noreply@anthropic.com>` — hook'un istediği gibi), sadece uzağa gönderilemiyor.
-
-İmza konusunda: bu repoda GPG/SSH commit imzalama hiç kurulu değil, benim de imzalama anahtarım yok — o yüzden "amend + reset-author" yapsam bile imza eklenmez, sadece tarih/hash değişir. Hook'un asıl mesajı zaten "signature eksik" diyor, bunu senin taraftan bir imzalama anahtarı kurup `git config commit.gpgsign true` yapmadan çözemem.
-
-Şu an asıl blokaj push'un 403 vermesi — bunu senin GitHub erişim/token ayarların tarafında kontrol edebilir misin? Onsuz bu commit remote'a hiç ulaşmıyor, imza meselesi de zaten ondan sonra gelir.
 */
