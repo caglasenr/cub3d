@@ -32,6 +32,10 @@ static void	print_summary(t_config *cfg)
 	printf("SO: %s\n", cfg->so_path);
 	printf("WE: %s\n", cfg->we_path);
 	printf("EA: %s\n", cfg->ea_path);
+	if (cfg->door_path)
+		printf("DO: %s\n", cfg->door_path);
+	if (cfg->sprite_path)
+		printf("SP: %s\n", cfg->sprite_path);
 	print_rgb("Floor:  ", cfg->floor);
 	print_rgb("Ceiling:", cfg->ceiling);
 	printf("Player '%c' at %d,%d\n", cfg->player_dir,
@@ -45,17 +49,17 @@ static void	print_summary(t_config *cfg)
 int	main(int argc, char **argv)
 {
 	t_config	cfg;
+	t_gc		*gc;
 
+	gc = NULL;
 	if (argc != 2)
-		return (err("usage: ./cub3D <scene.cub>"), 1);
+		gc_free_all_and_exit(&gc, "usage: ./cub3D <scene.cub>", 1);
+	if (check_extension(argv[1]) != 0)
+		gc_free_all_and_exit(&gc, "map file must have the .cub extension", 1);
 	init_config(&cfg);
-	if (parse_scene(&cfg, argv[1]) != 0)
-	{
-		free_config(&cfg);
-		return (1);
-	}
+	parse_cub_file(argv[1], &cfg, &gc);
 	printf("Parsing OK\n");
 	print_summary(&cfg);
-	free_config(&cfg);
+	gc_free_all_and_exit(&gc, NULL, 0);
 	return (0);
 }

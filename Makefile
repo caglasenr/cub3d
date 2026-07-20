@@ -12,14 +12,11 @@ LIBFT_DIR	= libft
 LIBFT		= $(LIBFT_DIR)/libft.a
 
 SRC			= main.c \
-			src/parser/parser.c \
-			src/parser/read_file.c \
-			src/parser/parse_elements.c \
-			src/parser/parse_colors.c \
-			src/parser/parse_map.c \
-			src/parser/validate_map.c \
-			src/parser/parser_utils.c \
-			src/parser/free_utils.c \
+			src/parser/parser_router.c \
+			src/parser/config_parser.c \
+			src/parser/map_parser.c \
+			src/parser/validator.c \
+			src/parser/gc_utils.c \
 			get_next_line/get_next_line.c
 
 OBJ			= $(SRC:.c=.o)

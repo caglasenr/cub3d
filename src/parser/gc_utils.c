@@ -1,0 +1,58 @@
+#include "cub3d.h"
+
+void	gc_free_all_and_exit(t_gc **gc, char *err_msg, int exit_code)
+{
+	t_gc	*current;
+	t_gc	*next_node;
+
+	if (gc && *gc)
+	{
+		current = *gc;
+		while (current)
+		{
+			next_node = current->next;
+			free(current->ptr);
+			free(current);
+			current = next_node;
+		}
+		*gc = NULL;
+	}
+	if (err_msg)
+	{
+		ft_putstr_fd("Error\n", 2);
+		ft_putstr_fd(err_msg, 2);
+		ft_putstr_fd("\n", 2);
+	}
+	exit(exit_code);
+}
+
+void	*gc_malloc(t_gc **gc, size_t size)
+{
+	t_gc	*new_node;
+	void	*new_ptr;
+
+	new_ptr = malloc(size);
+	if (!new_ptr)
+		gc_free_all_and_exit(gc, "malloc failed", 1);
+	new_node = malloc(sizeof(t_gc));
+	if (!new_node)
+	{
+		free(new_ptr);
+		gc_free_all_and_exit(gc, "malloc failed", 1);
+	}
+	new_node->ptr = new_ptr;
+	new_node->next = *gc;
+	*gc = new_node;
+	return (new_ptr);
+}
+
+char	*gc_strdup(t_gc **gc, const char *s1)
+{
+	size_t	len;
+	char	*copy;
+
+	len = ft_strlen(s1);
+	copy = gc_malloc(gc, len + 1);
+	ft_strlcpy(copy, s1, len + 1);
+	return (copy);
+}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: csener <csener@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 16:26:59 by csener            #+#    #+#             */
-/*   Updated: 2026/07/14 19:38:24 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/07/20 13:19:27 by csener           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <math.h>
+# include <stdbool.h>
 
 # define WIN_W 1280
 # define WIN_H 720
@@ -59,6 +60,8 @@ typedef struct s_config
 	char	*so_path;
 	char	*we_path;
 	char	*ea_path;
+	char	*door_path;
+	char	*sprite_path;
 	int		floor[3];
 	int		ceiling[3];
 	int		has_floor;
@@ -87,45 +90,55 @@ typedef struct s_img
 }	t_img;
 
 /*
-** t_fill: internal helper for the flood-fill closed-map check.
+** t_gc: a simple linked-list allocator tracker. Every gc_malloc/gc_strdup
+** call is registered here so a single gc_free_all_and_exit() call can
+** release the whole parser's memory, even on an error exit.
 */
-typedef struct s_fill
+typedef struct s_gc
 {
-	int	h;
-	int	w;
-	int	leak;
-}	t_fill;
+	void			*ptr;
+	struct s_gc		*next;
+}	t_gc;
 
-/* ---- parser entry point (parser.c) ---- */
-int		parse_scene(t_config *cfg, char *path);
+/*
+** t_map_line: temporary linked list the router appends map rows to while
+** reading the file, before build_final_grid() turns it into cfg->map.
+*/
+typedef struct s_map_line
+{
+	char				*line;
+	struct s_map_line	*next;
+}	t_map_line;
+
+/* ---- memory management (gc_utils.c) ---- */
+void	*gc_malloc(t_gc **gc, size_t size);
+char	*gc_strdup(t_gc **gc, const char *s1);
+void	gc_free_all_and_exit(t_gc **gc, char *err_msg, int exit_code);
+
+/* ---- entry point & routing (parser_router.c) ---- */
 void	init_config(t_config *cfg);
-char	**read_file(int fd);
-int		parse_lines(t_config *cfg, char **lines, int *map_start);
-int		build_map(t_config *cfg, char **lines, int start);
-
-/* ---- elements (parse_elements.c) ---- */
-int		parse_element_line(t_config *cfg, char *line);
-int		set_texture(char **dst, char *rest);
-int		set_color(int *rgb, int *has, char *rest);
-int		check_textures(t_config *cfg);
-
-/* ---- colors (parse_colors.c) ---- */
-int		parse_rgb(char *s, int *rgb);
-
-/* ---- map (parse_map.c) ---- */
-int		collect_map(t_config *cfg, char **lines, int start);
-int		scan_map(t_config *cfg);
-
-/* ---- validation (validate_map.c) ---- */
-int		check_closed(t_config *cfg);
-
-/* ---- utils (parser_utils.c) ---- */
-int		err(char *msg);
 int		check_extension(char *path);
-int		is_space(char c);
-int		is_empty_line(char *line);
-void	free_split(char **arr);
-void	free_config(t_config *cfg);
+void	check_textures(t_config *cfg, t_gc **gc);
+bool	is_empty_line(char *line);
+bool	is_config_line(char *line);
+bool	is_map_line(char *line);
+void	parse_cub_file(char *file_path, t_config *cfg, t_gc **gc);
+
+/* ---- scene elements & colors (config_parser.c) ---- */
+int		skip_whitespaces(char *line, int i);
+bool	is_all_digits(char *str);
+void	save_texture(char **target, char *line, int i, t_gc **gc);
+void	parse_color(int *target, char *line, int i, t_gc **gc);
+void	parse_config(char *line, t_config *cfg, t_gc **gc);
+
+/* ---- map building (map_parser.c) ---- */
+int		get_line_length(char *line);
+void	append_map_line(char *line, t_map_line **list, t_gc **gc);
+void	build_final_grid(t_config *cfg, t_map_line *list, t_gc **gc);
+
+/* ---- validation (validator.c) ---- */
+bool	flood_fill(t_config *cfg, int x, int y, char **copy);
+void	validate_map(t_config *cfg, t_gc **gc);
 
 /* ---- raycasting (src/raycasting/) ---- */
 void	init_player(t_config *cfg, t_player *player);
