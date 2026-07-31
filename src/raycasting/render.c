@@ -1,4 +1,5 @@
 #include "cub3d.h"
+#include <mlx.h>
 /*
 mlx te frame->adr ekranın bütün piksellerini yan yana dizilmiş tek boyutlu byte dizisi olarak tutuyoriki boyutlu değil 
 img->addr başlangıç adresimiz 
@@ -112,16 +113,33 @@ void cast_ray(t_player *player, t_config *cfg, double camera_x, t_ray *ray )
 }
 void wall_height(t_ray *ray, int *draw_start, int *draw_end)
 {
-
+    //derlenmesi için void cast ettim
+    (void)ray;
+    (void)draw_start;
+    (void)draw_end;
 }
-void draw_column(t_img *frame, t_img *texture,t_ray *ray, int x, int *draw_start,int *draw_end)
-{
 
+void draw_column(t_img *frame, t_img *texture, t_ray *ray, int x, int draw_start, int draw_end)
+{
+    //derlenmesi için void cast ettim
+    (void)frame;
+    (void)texture;
+    (void)ray;
+    (void)x;
+    (void)draw_start;
+    (void)draw_end;
 }
 void render_frame(t_img *frame, t_player *player, t_config *cfg, t_img *textures)
 {
+    //değiskenleri tanımladım
+    int     x;
+    double  camera_x;
+    t_ray   ray;
+    int     draw_start;
+    int     draw_end;
+    
     draw_background(frame, cfg);
-    int x = 0;
+    x = 0;
     while (x < WIN_W)
     {
         camera_x = 2.0 * x / (double)WIN_W - 1.0;
@@ -130,6 +148,17 @@ void render_frame(t_img *frame, t_player *player, t_config *cfg, t_img *textures
         draw_column(frame, textures, &ray, x, draw_start, draw_end);
         x++;
     }
+}
+int render_loop(t_game *game)
+{
+    // 1. Ekranı çizmeden önce klavyedeki duruma göre oyuncuyu yürüt
+    move_player(game);
+
+    // 2. Yeni konuma göre ekranı çiz
+    render_frame(&game->frame, &game->player, &game->cfg, game->textures);
+    
+    mlx_put_image_to_window(game->mlx, game->win, game->frame.ptr, 0, 0);
+    return (0);
 }
 /*
 

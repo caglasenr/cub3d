@@ -3,12 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: csener <csener@student.42.fr>              +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42kocaeli.com.tr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 16:26:59 by csener            #+#    #+#             */
-/*   Updated: 2026/07/20 13:19:27 by csener           ###   ########.fr       */
+/*   Updated: 2026/07/31 15:05:28 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+# define MOVE_SPEED 0.05
+# define ROT_SPEED  0.03
 
 #ifndef CUB3D_H
 # define CUB3D_H
@@ -74,10 +77,12 @@ typedef struct s_config
 	char	player_dir;
 }	t_config;
 
-/*
-** t_img: a ready-to-use MLX image wrapper for the raycaster (frame + textures).
-** The parser does not touch it; it is here so the whole team shares one header.
-*/
+typedef struct s_gc
+{
+	void			*ptr;
+	struct s_gc		*next;
+}	t_gc;
+
 typedef struct s_img
 {
 	void	*ptr;
@@ -89,16 +94,24 @@ typedef struct s_img
 	int		height;
 }	t_img;
 
+typedef struct s_game {
+    void        *mlx;
+    void        *win;
+	t_img		frame;
+	t_img       textures[4];
+    t_config    cfg;
+    t_gc        *gc;
+	t_player    player;
+	int         keys[65536];
+}   t_game;
+
+
 /*
 ** t_gc: a simple linked-list allocator tracker. Every gc_malloc/gc_strdup
 ** call is registered here so a single gc_free_all_and_exit() call can
 ** release the whole parser's memory, even on an error exit.
 */
-typedef struct s_gc
-{
-	void			*ptr;
-	struct s_gc		*next;
-}	t_gc;
+
 
 /*
 ** t_map_line: temporary linked list the router appends map rows to while
@@ -144,5 +157,14 @@ void	validate_map(t_config *cfg, t_gc **gc);
 void	init_player(t_config *cfg, t_player *player);
 void	cast_ray(t_player *player, t_config *cfg, double camera_x, t_ray *ray);
 void	wall_height(t_ray *ray, int *draw_start, int *draw_end);
+void init_game(t_game *game);
+int key_press(int keycode, t_game *game);
+int close_window(t_game *game);
+void put_pixel(t_img *img, int x, int y, int color);
+void draw_background(t_img *frame, t_config *config);
+int  render_loop(t_game *game);
+int key_release(int keycode, t_game *game);
+void move_player(t_game *game);
+void	load_textures(t_game *game);
 
 #endif
