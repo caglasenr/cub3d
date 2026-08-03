@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: csener <csener@student.42.fr>              +#+  +:+       +#+        */
+/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 16:26:59 by csener            #+#    #+#             */
-/*   Updated: 2026/07/20 13:19:27 by csener           ###   ########.fr       */
+/*   Updated: 2026/08/03 14:12:32 by caglasener       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ typedef struct s_ray
     double side_dist_x;
     double side_dist_y;
     double perp_wall_dist;
+    double wall_x;
 }	t_ray;
 /*
 ** t_config: the parser's output and the data contract with the raycaster.

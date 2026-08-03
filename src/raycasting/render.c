@@ -109,10 +109,41 @@ void cast_ray(t_player *player, t_config *cfg, double camera_x, t_ray *ray )
         ray->perp_wall_dist = ray->side_dist_x - ray->delta_dist_x;
     else
         ray->perp_wall_dist = ray->side_dist_y - ray->delta_dist_y;
+
+/*
+Diyelim harita hücresi map_x = 4 (yani duvar, x ekseninde 4 ile 5 arasında bir dikey düzlem, side == 0 — dikey duvara çarptık).
+
+Bu durumda duvarın x koordinatı sabit (tam 4 ya da 5, hangi taraftan çarptığına göre) — ama y koordinatı duvarın neresine çarptığımızı söylüyor.
+Diyelim çarpma noktası (4.0, 2.73) çıktı — yani duvarın y=2 ile y=3 arasındaki kısmına, 0.73 kadar aşağıdan çarpmışız.
+
+0.73 işte bizim wallX'imiz — texture'ın "0 ile 1 arası, %73'üne denk gelen sütununu" kullanacağız demek.
+Oyuncunun konumunu biliyoruz (pos_x, pos_y) ve ışının hangi yöne, ne kadar (perp_wall_dist) gittiğini biliyoruz. Yön × mesafe = kat edilen yol.
+Oyuncunun konumuna bu yolu eklersen çarpma noktasına ulaşırsın — 
+tıpkı "5 km/saat hızla 2 saat gidersen 10 km ilerlersin, başlangıç noktan + 10 km = vardığın yer" gibi.
+*/
+    if(ray->side == 0)
+        ray->wall_x = player->pos_y + ray->perp_wall_dist * ray->ray_dir_y;
+    else
+        ray->wall_x = player->pos_x + ray->perp_wall_dist * ray->ray_dir_x;
+    ray->wall_x = floor(ray->wall_x);
 }
+/*
+line_height ile duvarın ekranda kaç piksel yukarda gözükeceğini tutacağız
+perp_wall_dist büyüdükçe yani duvardan daha fazla uzaklaştıkça lineheight küçülecek
+burda oyuncu aşağı yukarı bakmıyor ufuk çizgisi hep ekranın tam ortasında win_h/2 line_height ın yarısı yukarı yarısı aşağı
+oyuncu duvara çok yaklaşırsa perp_walldist çok küçülür ve line height orantısız artabilir ekran boyutundan daha büyük çıkabilir
+o zaman drawstart negatif olabilir draw end de ekran boyutunu aşabilir o yüzden sınırlamalıyız
+*/
 void wall_height(t_ray *ray, int *draw_start, int *draw_end)
 {
-
+    int line_height;
+    line_height = (int)(WIN_H / ray->perp_wall_dist);
+    *draw_start = WIN_H / 2 - line_height/2;
+    if(*draw_start < 0)
+        *draw_start = 0;
+    *draw_end = WIN_H/2 + line_height/2;
+    if(*draw_end >= WIN_H)
+        *draw_end = WIN_H-1;
 }
 void draw_column(t_img *frame, t_img *texture,t_ray *ray, int x, int *draw_start,int *draw_end)
 {
