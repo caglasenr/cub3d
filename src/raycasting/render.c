@@ -126,7 +126,7 @@ tıpkı "5 km/saat hızla 2 saat gidersen 10 km ilerlersin, başlangıç noktan 
         ray->wall_x = player->pos_y + ray->perp_wall_dist * ray->ray_dir_y;
     else
         ray->wall_x = player->pos_x + ray->perp_wall_dist * ray->ray_dir_x;
-    ray->wall_x = floor(ray->wall_x);
+    ray->wall_x -= floor(ray->wall_x);
 }
 /*
 line_height ile duvarın ekranda kaç piksel yukarda gözükeceğini tutacağız
@@ -146,16 +146,86 @@ void wall_height(t_ray *ray, int *draw_start, int *draw_end)
     if(*draw_end >= WIN_H)
         *draw_end = WIN_H-1;
 }
+int tex_pixel(t_img *img, int x, int y)
+{
+    return (*(int *)(img->addr + y * img->line_len + x * (img->bpp / 8)));
+}
 
+/*
+1)Oyuncu bir duvara bakıyor. Bu duvar hangi yöne bakan bir duvar (kuzey mi, güney mi)? → cast_ray bunu side ve ışın yönünden (ray_dir_x/y'nin işareti) çıkarıyor.
+2)"Bu yön" bilgisinden, 4 resimden (textures[0..3]) hangisini kullanacağımıza karar veriyoruz → işte face bu.
+3)O resmin tam neresine bakacağımızı (texX, texY) hesaplıyoruz — çünkü duvarın soluna çarpan ışınla sağına çarpan ışın,resmin farklı yerlerini göstermeli (yoksa tüm duvar aynı renkte tek düze görünür, desensiz olur).
+4)O piksel konumundaki rengi okuyoruz (tex_pixel — put_pixel'in tam tersi, yazmak yerine okuyan versiyonu).
+5)O rengi ekrana (frame), doğru yere (x, y) put_pixel ile basıyoruz.
+Yani özetle: texture = duvara basılacak resim dosyası, face = 4 resimden hangisi, texX/texY = o resmin hangi noktası, renk = o noktada saklı olan RGB değeri.
+
+Hangi yöne yürüyordun, duvara çarptığında?" — cevap o duvarın adı.
+
+Doğuya yürürken çarptın → EA 3
+Batıya yürürken çarptın → WE 2
+Güneye yürürken çarptın → SO 1
+Kuzeye yürürken çarptın → NO 0
+text_x  bulduğumuz wallx değerini texturedeki gerçek piksel sütunu numarasına çeviriyor diyelim wallx 0.73(duvar genişliği boyunda yüzde kaçına denk geliyoruz) yani duvarın %73 sağ veya solundayız ama texture piksellerden 
+oluşur o yüzden net sütun sayısını bulmalıyız. texture geniliği 64 pikselse %73 e denk gelen sütün 0.73*64 = 46.72 yani 46. sütun
+
+diyelimki texture 64 piksel yüksekliğinde ama line_height duvarın ekranda kapladığı piksel sayısı 600 veya 20 
+yani biz 64 satırlık resmi 600 veya 20 satırlık bir alana sıkıştırcağız
+step= texture[face].height / line_height
+line 600 ise 64/600 = 0.106 ekranda 1 satır gitmek için texture üzerinde 0.106 gidiyoruz aynı şekilde
+line 20 ise 64/20 3.2 ekranda 1 satır gittiğimizde resimde 3.2 satır gidiyoruz
+
+tex_pos için şu şekilde draw startı en başta kesmiiş olabiliriz wall_height fonksiyonunda bizim negaitf çıktığında 0 a eşitleriz 
+mesela line height 2000 olsun win_h 720 olsun 720/2 -2000/2 = -640 burumda draw_start 0 olur
+tex_pos (0-720/2+2000/2)*step 640*step olur
+*/
 void draw_column(t_img *frame, t_img *texture, t_ray *ray, int x, int draw_start, int draw_end)
 {
-    //derlenmesi için void cast ettim
-    (void)frame;
-    (void)texture;
-    (void)ray;
-    (void)x;
-    (void)draw_start;
-    (void)draw_end;
+    int tex_x;
+    int face;
+    double step;
+    int line_height;
+    double tex_pos;//başlangıç
+    int tex_y;
+    int y;
+    int color;
+
+    if(ray->side == 0)
+    {
+        if(ray->ray_dir_x > 0)
+            face = 3;
+        else
+            face = 2;
+    }
+    else
+    {
+        if(ray->ray_dir_y > 0)
+            face = 1;
+        else
+            face = 0;
+    }
+    
+    tex_x = (int)(ray->wall_x * texture[face].width);
+    
+    if(ray->side == 0 && ray->ray_dir_x > 0)
+        tex_x = texture[face].width - tex_x -1;
+    if(ray->side == 1 && ray->ray_dir_y < 0)
+        tex_x = texture[face].width - tex_x -1;
+        
+    line_height = (int)(WIN_H / ray->perp_wall_dist);
+    step = (double)texture[face].height / line_height;
+    tex_pos=(draw_start - (WIN_H/2 - line_height/2))*step;
+    
+    y = draw_start;
+    while(y <= draw_end)
+    {
+        tex_y = (int)tex_pos;
+        tex_pos += step;
+        color = tex_pixel(&texture[face], tex_x, tex_y);
+        put_pixel(frame, x, y, color);
+        y++;
+    }
+
+
 }
 void render_frame(t_img *frame, t_player *player, t_config *cfg, t_img *textures)
 {

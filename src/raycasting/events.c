@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "cub3d.h"
-#include <mlx.h>
-#include <stdlib.h>
 
 int close_window(t_game *game)
 {
