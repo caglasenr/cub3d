@@ -102,8 +102,11 @@ void cast_ray(t_player *player, t_config *cfg, double camera_x, t_ray *ray )
             ray->map_y += ray->step_y;
             ray->side = 1;
         }
-        if(cfg->map[ray->map_y][ray->map_x] == '1')
+        if(cfg->map[ray->map_y][ray->map_x] == '1' || cfg->map[ray->map_y][ray->map_x] == 'D')
+        {
+            ray->hit_char = cfg->map[ray->map_y][ray->map_x];
             break;
+        }
     }
     
     if(ray->side == 0)
@@ -189,7 +192,9 @@ void draw_column(t_img *frame, t_img *texture, t_ray *ray, int x, int draw_start
     int y;
     int color;
 
-    if(ray->side == 0)
+    if (ray->hit_char == 'D')
+        face = 4;
+    else if(ray->side == 0)
     {
         if(ray->ray_dir_x > 0)
             face = 3;

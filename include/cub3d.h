@@ -6,7 +6,7 @@
 /*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 16:26:59 by csener            #+#    #+#             */
-/*   Updated: 2026/08/03 14:29:13 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/06 15:03:54 by caglasener       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,8 @@ typedef struct s_ray
     double side_dist_x;
     double side_dist_y;
     double perp_wall_dist;
-    double wall_x;
+    double  wall_x;
+    char    hit_char;  
 }	t_ray;
 /*
 ** t_config: the parser's output and the data contract with the raycaster.
@@ -99,7 +100,7 @@ typedef struct s_game {
     void        *mlx;
     void        *win;
 	t_img		frame;
-	t_img       textures[4];
+	t_img       textures[5];
     t_config    cfg;
     t_gc        *gc;
 	t_player    player;
@@ -166,6 +167,7 @@ void draw_background(t_img *frame, t_config *config);
 int  render_loop(t_game *game);
 int key_release(int keycode, t_game *game);
 void move_player(t_game *game);
+void toggle_door(t_game *game);
 void	load_textures(t_game *game);
 
 #endif

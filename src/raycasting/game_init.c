@@ -26,6 +26,8 @@ void	load_textures(t_game *game)
 	load_single_texture(game, &game->textures[1], game->cfg.so_path);
 	load_single_texture(game, &game->textures[2], game->cfg.we_path);
 	load_single_texture(game, &game->textures[3], game->cfg.ea_path);
+    if (game->cfg.door_path)
+        load_single_texture(game, &game->textures[4], game->cfg.door_path);
 }
 
 void init_game(t_game *game)
