@@ -29,8 +29,8 @@ OBJ = $(SRC:.c=.o)
 # MiniLibX (Linux). Raycaster'a başlarken:
 # ---------------------------------------------------------------------------- #
 MLX_DIR = minilibx-linux
-MLX = $(MLX_DIR)/libmlx.dylib
-MLX_FLAGS = -L$(MLX_DIR) -lmlx -lm -Wl,-rpath,@executable_path/$(MLX_DIR)
+MLX = $(MLX_DIR)/libmlx.a
+MLX_FLAGS = -L$(MLX_DIR) -lmlx -lXext -lX11 -lm
 
 all: $(NAME)
 
