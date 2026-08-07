@@ -41,7 +41,7 @@ void init_game(t_game *game)
     game->win = mlx_new_window(game->mlx, WIN_W, WIN_H, "cub3D");
     if (!game->win)
         gc_free_all_and_exit(&game->gc, "Window creation failed", 1);
-    game->frame.ptr = mlx_new_image(game->mlx, WIN_W, WIN_H);
+    game->frame.ptr = mlx_new_image(game->mlx, WIN_W, WIN_H); //ekran boyutunca bir frame açıyorher pikseller önce buraya çiziliyo
     if (!game->frame.ptr)
         gc_free_all_and_exit(&game->gc, "Frame image creation failed", 1);
     

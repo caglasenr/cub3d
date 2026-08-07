@@ -102,7 +102,7 @@ void cast_ray(t_player *player, t_config *cfg, double camera_x, t_ray *ray )
             ray->map_y += ray->step_y;
             ray->side = 1;
         }
-        if(cfg->map[ray->map_y][ray->map_x] == '1' || cfg->map[ray->map_y][ray->map_x] == 'D')
+        if(cfg->map[ray->map_y][ray->map_x] == '1' || cfg->map[ray->map_y][ray->map_x] == 'D' || cfg->map[ray->map_y][ray->map_x] == 'o')
         {
             ray->hit_char = cfg->map[ray->map_y][ray->map_x];
             break;
