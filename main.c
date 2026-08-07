@@ -5,6 +5,8 @@ int main(int argc, char **argv)
 {
     t_game game;
 
+    ft_memset(&game, 0, sizeof(t_game));
+    
     game.gc = NULL;
     init_config(&game.cfg);
 
