@@ -139,6 +139,27 @@ typedef struct s_parse_ctx
 	t_map_line	*map_list;
 }	t_parse_ctx;
 
+/*
+** t_cell / t_flood_ctx: validator.c'nin ozyinelemesiz (yigin tabanli)
+** flood_fill'i icin. leaked, kesif sirasinda harita sinirinin disina
+** ya da bos bir hucreye ulasilip ulasilmadigini tutar.
+*/
+typedef struct s_cell
+{
+	int	x;
+	int	y;
+}	t_cell;
+
+typedef struct s_flood_ctx
+{
+	char	**copy;
+	t_cell	*stack;
+	int		top;
+	int		w;
+	int		h;
+	bool	leaked;
+}	t_flood_ctx;
+
 /* ---- memory management (gc_utils.c) ---- */
 void	*gc_malloc(t_gc **gc, size_t size);
 char	*gc_strdup(t_gc **gc, const char *s1);

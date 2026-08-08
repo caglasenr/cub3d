@@ -23,15 +23,14 @@ bool	is_all_digits(char *str)
 {
 	int	i;
 
-	i = 0;
-	while (str[i])
-	{
-		if (!ft_isdigit((unsigned char)str[i]) && str[i] != '\n'
-			&& str[i] != ' ')
-			return (false);
+	i = skip_whitespaces(str, 0);
+	if (!ft_isdigit((unsigned char)str[i]))
+		return (false);
+	while (ft_isdigit((unsigned char)str[i]))
 		i++;
-	}
-	return (true);
+	while (str[i] == ' ' || str[i] == '\n' || str[i] == '\t')
+		i++;
+	return (str[i] == '\0');
 }
 
 // Satır sadece boşluk/tab/newline'dan mı oluşuyor, yoksa tamamen boş mu?

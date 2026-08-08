@@ -12,25 +12,75 @@
 
 #include "cub3d.h"
 
+static void	try_push(t_flood_ctx *ctx, int x, int y)
+{
+	if (x < 0 || x >= ctx->w || y < 0 || y >= ctx->h)
+	{
+		ctx->leaked = true;
+		return ;
+	}
+	if (ctx->copy[y][x] == ' ')
+	{
+		ctx->leaked = true;
+		return ;
+	}
+	if (ctx->copy[y][x] == '1' || ctx->copy[y][x] == 'V')
+		return ;
+	ctx->copy[y][x] = 'V';
+	ctx->stack[ctx->top].x = x;
+	ctx->stack[ctx->top].y = y;
+	ctx->top++;
+}
+
+static bool	init_flood_ctx(t_flood_ctx *ctx, t_config *cfg, char **copy,
+		t_cell start)
+{
+	ctx->copy = copy;
+	ctx->w = cfg->map_w;
+	ctx->h = cfg->map_h;
+	ctx->leaked = false;
+	ctx->stack = malloc(sizeof(t_cell) * (cfg->map_w * cfg->map_h + 1));
+	if (!ctx->stack)
+		return (false);
+	ctx->top = 0;
+	copy[start.y][start.x] = 'V';
+	ctx->stack[ctx->top] = start;
+	ctx->top++;
+	return (true);
+}
+
+/*
+** Ozyinelemeli flood-fill yerine acik yigin kullanir: buyuk (acik alanli)
+** haritalarda ozyineleme derinligi bin/on binlerce cagriya cikip stack
+** tasmasina yol acabiliyordu. Her hucre en fazla bir kez itilir (push
+** aninda 'V' ile isaretlenir), o yuzden yigin en fazla map_w*map_h
+** buyuklugunde olur.
+*/
 bool	flood_fill(t_config *cfg, int x, int y, char **copy)
 {
-	bool	top;
-	bool	bottom;
-	bool	left;
-	bool	right;
+	t_flood_ctx	ctx;
+	t_cell		cur;
+	t_cell		start;
 
 	if (x < 0 || x >= cfg->map_w || y < 0 || y >= cfg->map_h)
 		return (false);
 	if (copy[y][x] == ' ')
 		return (false);
-	if (copy[y][x] == '1' || copy[y][x] == 'V')
-		return (true);
-	copy[y][x] = 'V';
-	top = flood_fill(cfg, x, y - 1, copy);
-	bottom = flood_fill(cfg, x, y + 1, copy);
-	left = flood_fill(cfg, x - 1, y, copy);
-	right = flood_fill(cfg, x + 1, y, copy);
-	return (top && bottom && left && right);
+	start.x = x;
+	start.y = y;
+	if (!init_flood_ctx(&ctx, cfg, copy, start))
+		return (false);
+	while (ctx.top > 0)
+	{
+		ctx.top--;
+		cur = ctx.stack[ctx.top];
+		try_push(&ctx, cur.x, cur.y - 1);
+		try_push(&ctx, cur.x, cur.y + 1);
+		try_push(&ctx, cur.x - 1, cur.y);
+		try_push(&ctx, cur.x + 1, cur.y);
+	}
+	free(ctx.stack);
+	return (!ctx.leaked);
 }
 
 void	validate_map(t_config *cfg, t_gc **gc)

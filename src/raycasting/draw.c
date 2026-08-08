@@ -6,7 +6,7 @@
 /*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 17:00:00 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/07 17:00:00 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/08 18:56:15 by caglasener       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,21 +56,21 @@ static int	get_tex_x(t_ray *ray, t_img *texture, int face)
 */
 static void	draw_column(t_img *frame, t_img *texture, t_ray *ray, int x)
 {
+	int		face;
 	int		tex_x;
-	int		tex_y;
 	double	step;
 	double	tex_pos;
 	int		y;
 
-	tex_x = get_tex_x(ray, texture, get_face(ray));
-	step = get_tex_step(ray, texture, get_face(ray), &tex_pos);
+	face = get_face(ray);
+	tex_x = get_tex_x(ray, texture, face);
+	step = get_tex_step(ray, texture, face, &tex_pos);
 	y = ray->draw_start;
 	while (y <= ray->draw_end)
 	{
-		tex_y = (int)tex_pos;
-		tex_pos += step;
 		put_pixel(frame, x, y,
-			tex_pixel(&texture[get_face(ray)], tex_x, tex_y));
+			tex_pixel(&texture[face], tex_x, (int)tex_pos));
+		tex_pos += step;
 		y++;
 	}
 }

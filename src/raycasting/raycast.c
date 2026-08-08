@@ -6,7 +6,7 @@
 /*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 17:00:00 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/07 17:00:00 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/08 19:00:42 by caglasener       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,10 +56,13 @@ static void	init_ray_step(t_ray *ray, t_player *player)
 
 /*
 ** DDA: siradaki hucre sinirina daha yakin olan eksende bir adim ilerler,
-** o hucre duvar ('1'), kapali kapi ('D') ya da acik kapi ('o') ise durur.
+** o hucre duvar ('1') ya da kapali kapi ('D') ise durur. Acik kapi ('o')
+** durdurmaz, isin icinden gecer.
 */
 static void	dda_loop(t_ray *ray, t_config *cfg)
 {
+	char	cell;
+
 	while (1)
 	{
 		if (ray->side_dist_x < ray->side_dist_y)
@@ -74,11 +77,10 @@ static void	dda_loop(t_ray *ray, t_config *cfg)
 			ray->map_y += ray->step_y;
 			ray->side = 1;
 		}
-		if (cfg->map[ray->map_y][ray->map_x] == '1'
-			|| cfg->map[ray->map_y][ray->map_x] == 'D'
-			|| cfg->map[ray->map_y][ray->map_x] == 'o')
+		cell = cfg->map[ray->map_y][ray->map_x];
+		if (cell == '1' || cell == 'D')
 		{
-			ray->hit_char = cfg->map[ray->map_y][ray->map_x];
+			ray->hit_char = cell;
 			break ;
 		}
 	}
