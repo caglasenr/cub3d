@@ -18,10 +18,15 @@ SRC = main.c \
       src/parser/map_parser.c \
       src/parser/validator.c \
       src/parser/gc_utils.c \
+      src/parser/parser_utils.c \
       src/raycasting/events.c \
+      src/raycasting/movement.c \
+      src/raycasting/rotation.c \
       src/raycasting/game_init.c \
       src/raycasting/player_init.c \
       src/raycasting/render.c \
+      src/raycasting/raycast.c \
+      src/raycasting/draw.c \
       get_next_line/get_next_line.c
 OBJ = $(SRC:.c=.o)
 

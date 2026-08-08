@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   validator.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/08/07 15:58:21 by caglasener        #+#    #+#             */
+/*   Updated: 2026/08/07 15:58:21 by caglasener       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 bool	flood_fill(t_config *cfg, int x, int y, char **copy)
@@ -35,5 +47,6 @@ void	validate_map(t_config *cfg, t_gc **gc)
 	}
 	map_copy[y] = NULL;
 	if (!flood_fill(cfg, cfg->player_x, cfg->player_y, map_copy))
-		gc_free_all_and_exit(gc, "map is not closed, there are gaps in the walls", 1);
+		gc_free_all_and_exit(gc,
+			"map is not closed, there are gaps in the walls", 1);
 }

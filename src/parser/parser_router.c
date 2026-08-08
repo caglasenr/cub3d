@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_router.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/08/07 15:58:21 by caglasener        #+#    #+#             */
+/*   Updated: 2026/08/07 15:58:21 by caglasener       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 void	init_config(t_config *cfg)
@@ -41,98 +53,64 @@ void	check_textures(t_config *cfg, t_gc **gc)
 	}
 }
 
-bool	is_empty_line(char *line)
-{
-	int	i;
+// is_empty_line / is_config_line / is_map_line -> parser_utils.c'ye taşındı
+// (bu dosya norm'un 5-fonksiyon limitine takılıyordu)
 
-	if (!line)
-		return (true);
-	i = 0;
-	while (line[i])
+// Tek bir satırı işler: boşsa atla, config satırıysa parse_config'e ver,
+// harita satırıysa listeye ekle, hiçbiri değilse hata ver.
+// Döngü durumunu (fd, map_started, map_list) tek tek parametre yerine
+// t_parse_ctx üzerinden alıyor ki fonksiyon 4 parametre norm limitini aşmasın.
+static void	process_line(char *line, t_parse_ctx *ctx)
+{
+	if (is_empty_line(line))
+		free(line);
+	else if (is_config_line(line))
 	{
-		if (line[i] != ' ' && line[i] != '\t' && line[i] != '\n')
-			return (false);
-		i++;
+		if (ctx->map_started)
+		{
+			free(line);
+			gc_free_all_and_exit(ctx->gc,
+				"configuration item after map has started", 1);
+		}
+		parse_config(line, ctx->cfg, ctx->gc);
+		free(line);
 	}
-	return (true);
-}
-
-bool	is_config_line(char *line)
-{
-	int	i;
-
-	i = 0;
-	while (line[i] == ' ' || line[i] == '\t')
-		i++;
-	if (!line[i])
-		return (false);
-	if (ft_strncmp(line + i, "NO ", 3) == 0 || ft_strncmp(line + i, "SO ", 3) == 0
-		|| ft_strncmp(line + i, "WE ", 3) == 0 || ft_strncmp(line + i, "EA ", 3) == 0
-		|| ft_strncmp(line + i, "DO ", 3) == 0 || ft_strncmp(line + i, "SP ", 3) == 0)
-		return (true);
-	if ((line[i] == 'F' || line[i] == 'C') && (line[i + 1] == ' ' || line[i + 1] == '\t'))
-		return (true);
-	return (false);
-}
-
-bool	is_map_line(char *line)
-{
-	int	i;
-
-	i = 0;
-	while (line[i] == ' ' || line[i] == '\t')
-		i++;
-	return (line[i] == '1' || line[i] == '0' || line[i] == 'N' || line[i] == 'S'
-		|| line[i] == 'E' || line[i] == 'W' || line[i] == 'D');
+	else if (is_map_line(line))
+	{
+		ctx->map_started = true;
+		append_map_line(line, &ctx->map_list, ctx->gc);
+		free(line);
+	}
+	else
+	{
+		free(line);
+		gc_free_all_and_exit(ctx->gc, "unrecognized line in map file", 1);
+	}
 }
 
 void	parse_cub_file(char *file_path, t_config *cfg, t_gc **gc)
 {
-	int			fd;
+	t_parse_ctx	ctx;
 	char		*line;
-	bool		map_started;
-	t_map_line	*map_list;
 
-	map_started = false;
-	map_list = NULL;
-	fd = open(file_path, O_RDONLY);
-	if (fd < 0)
+	ctx.fd = open(file_path, O_RDONLY);
+	if (ctx.fd < 0)
 		gc_free_all_and_exit(gc, "cannot open the map file", 1);
-	line = get_next_line(fd);
+	ctx.cfg = cfg;
+	ctx.gc = gc;
+	ctx.map_started = false;
+	ctx.map_list = NULL;
+	line = get_next_line(ctx.fd);
 	while (line)
 	{
-		if (is_empty_line(line))
-			free(line);
-		else if (is_config_line(line))
-		{
-			if (map_started)
-			{
-				free(line);
-				close(fd);
-				gc_free_all_and_exit(gc, "configuration item after map has started", 1);
-			}
-			parse_config(line, cfg, gc);
-			free(line);
-		}
-		else if (is_map_line(line))
-		{
-			map_started = true;
-			append_map_line(line, &map_list, gc);
-			free(line);
-		}
-		else
-		{
-			free(line);
-			close(fd);
-			gc_free_all_and_exit(gc, "unrecognized line in map file", 1);
-		}
-		line = get_next_line(fd);
+		process_line(line, &ctx);
+		line = get_next_line(ctx.fd);
 	}
-	close(fd);
+	close(ctx.fd);
 	if (!cfg->no_path || !cfg->so_path || !cfg->we_path || !cfg->ea_path
 		|| !cfg->has_floor || !cfg->has_ceil)
 		gc_free_all_and_exit(gc, "missing or incomplete scene element", 1);
-	build_final_grid(cfg, map_list, gc);
+	build_final_grid(cfg, ctx.map_list, gc);
 	validate_map(cfg, gc);
 	check_textures(cfg, gc);
 }

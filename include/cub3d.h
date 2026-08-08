@@ -10,11 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-# define MOVE_SPEED 0.05
-# define ROT_SPEED  0.03
-
 #ifndef CUB3D_H
 # define CUB3D_H
+
+# define MOVE_SPEED 0.05
+# define ROT_SPEED 0.03
 
 # include "../libft/libft.h"
 # include "../get_next_line/get_next_line.h"
@@ -39,20 +39,22 @@ typedef struct s_player
 
 typedef struct s_ray
 {
-    int map_x;
-    int map_y;
-    int step_x;
-    int step_y;
-    int side;
-    double ray_dir_x;
-    double ray_dir_y;
-    double delta_dist_x;
-    double delta_dist_y;
-    double side_dist_x;
-    double side_dist_y;
-    double perp_wall_dist;
-    double  wall_x;
-    char    hit_char;  
+	int		map_x;
+	int		map_y;
+	int		step_x;
+	int		step_y;
+	int		side;
+	double	ray_dir_x;
+	double	ray_dir_y;
+	double	delta_dist_x;
+	double	delta_dist_y;
+	double	side_dist_x;
+	double	side_dist_y;
+	double	perp_wall_dist;
+	double	wall_x;
+	char	hit_char;
+	int		draw_start;
+	int		draw_end;
 }	t_ray;
 /*
 ** t_config: the parser's output and the data contract with the raycaster.
@@ -96,24 +98,23 @@ typedef struct s_img
 	int		height;
 }	t_img;
 
-typedef struct s_game {
-    void        *mlx;
-    void        *win;
+typedef struct s_game
+{
+	void		*mlx;
+	void		*win;
 	t_img		frame;
-	t_img       textures[5];
-    t_config    cfg;
-    t_gc        *gc;
-	t_player    player;
-	int         keys[65536];
-}   t_game;
-
+	t_img		textures[5];
+	t_config	cfg;
+	t_gc		*gc;
+	t_player	player;
+	int			keys[65536];
+}	t_game;
 
 /*
 ** t_gc: a simple linked-list allocator tracker. Every gc_malloc/gc_strdup
 ** call is registered here so a single gc_free_all_and_exit() call can
 ** release the whole parser's memory, even on an error exit.
 */
-
 
 /*
 ** t_map_line: temporary linked list the router appends map rows to while
@@ -124,6 +125,19 @@ typedef struct s_map_line
 	char				*line;
 	struct s_map_line	*next;
 }	t_map_line;
+
+/*
+** t_parse_ctx: bundles the mutable state parse_cub_file()'s line-by-line
+** loop needs, so process_line() can take it as a single argument.
+*/
+typedef struct s_parse_ctx
+{
+	int			fd;
+	t_config	*cfg;
+	t_gc		**gc;
+	bool		map_started;
+	t_map_line	*map_list;
+}	t_parse_ctx;
 
 /* ---- memory management (gc_utils.c) ---- */
 void	*gc_malloc(t_gc **gc, size_t size);
@@ -158,16 +172,28 @@ void	validate_map(t_config *cfg, t_gc **gc);
 /* ---- raycasting (src/raycasting/) ---- */
 void	init_player(t_config *cfg, t_player *player);
 void	cast_ray(t_player *player, t_config *cfg, double camera_x, t_ray *ray);
-void	wall_height(t_ray *ray, int *draw_start, int *draw_end);
-void init_game(t_game *game);
-int key_press(int keycode, t_game *game);
-int close_window(t_game *game);
-void put_pixel(t_img *img, int x, int y, int color);
-void draw_background(t_img *frame, t_config *config);
-int  render_loop(t_game *game);
-int key_release(int keycode, t_game *game);
-void move_player(t_game *game);
-void toggle_door(t_game *game);
+void	wall_height(t_ray *ray);
+void	init_game(t_game *game);
+int		key_press(int keycode, t_game *game);
+int		close_window(t_game *game);
+void	put_pixel(t_img *img, int x, int y, int color);
+int		tex_pixel(t_img *img, int x, int y);
+double	get_tex_step(t_ray *ray, t_img *texture, int face, double *tex_pos);
+void	draw_background(t_img *frame, t_config *config);
+int		render_loop(t_game *game);
+int		key_release(int keycode, t_game *game);
+void	move_player(t_game *game);
+void	toggle_door(t_game *game);
 void	load_textures(t_game *game);
+
+/* ---- movement (movement.c) ---- */
+void	move_w(t_game *game);
+void	move_s(t_game *game);
+void	move_d(t_game *game);
+void	move_a(t_game *game);
+
+/* ---- camera rotation (rotation.c) ---- */
+void	rotate_right(t_game *game);
+void	rotate_left(t_game *game);
 
 #endif

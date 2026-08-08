@@ -1,25 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   config_parser.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/08/07 15:58:21 by caglasener        #+#    #+#             */
+/*   Updated: 2026/08/07 15:58:21 by caglasener       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
-
-int	skip_whitespaces(char *line, int i)
-{
-	while (line[i] == ' ' || line[i] == '\t')
-		i++;
-	return (i);
-}
-
-bool	is_all_digits(char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i])
-	{
-		if (!ft_isdigit((unsigned char)str[i]) && str[i] != '\n' && str[i] != ' ')
-			return (false);
-		i++;
-	}
-	return (true);
-}
 
 void	save_texture(char **target, char *line, int i, t_gc **gc)
 {
@@ -48,7 +39,8 @@ void	parse_color(int *target, char *line, int i, t_gc **gc)
 	rgb = ft_split(line + i, ',');
 	if (!rgb || !rgb[0] || !rgb[1] || !rgb[2] || rgb[3] != NULL)
 		gc_free_all_and_exit(gc, "invalid color format, expected R,G,B", 1);
-	if (!is_all_digits(rgb[0]) || !is_all_digits(rgb[1]) || !is_all_digits(rgb[2]))
+	if (!is_all_digits(rgb[0]) || !is_all_digits(rgb[1])
+		|| !is_all_digits(rgb[2]))
 		gc_free_all_and_exit(gc, "colors must only contain numbers", 1);
 	r = ft_atoi(rgb[0]);
 	g = ft_atoi(rgb[1]);
@@ -64,11 +56,8 @@ void	parse_color(int *target, char *line, int i, t_gc **gc)
 	free(rgb);
 }
 
-void	parse_config(char *line, t_config *cfg, t_gc **gc)
+static bool	parse_texture_config(char *line, int i, t_config *cfg, t_gc **gc)
 {
-	int	i;
-
-	i = skip_whitespaces(line, 0);
 	if (ft_strncmp(line + i, "NO ", 3) == 0)
 		save_texture(&(cfg->no_path), line, i + 3, gc);
 	else if (ft_strncmp(line + i, "SO ", 3) == 0)
@@ -81,7 +70,19 @@ void	parse_config(char *line, t_config *cfg, t_gc **gc)
 		save_texture(&(cfg->door_path), line, i + 3, gc);
 	else if (ft_strncmp(line + i, "SP ", 3) == 0)
 		save_texture(&(cfg->sprite_path), line, i + 3, gc);
-	else if (line[i] == 'F' && (line[i + 1] == ' ' || line[i + 1] == '\t'))
+	else
+		return (false);
+	return (true);
+}
+
+void	parse_config(char *line, t_config *cfg, t_gc **gc)
+{
+	int	i;
+
+	i = skip_whitespaces(line, 0);
+	if (parse_texture_config(line, i, cfg, gc))
+		return ;
+	if (line[i] == 'F' && (line[i + 1] == ' ' || line[i + 1] == '\t'))
 	{
 		if (cfg->has_floor)
 			gc_free_all_and_exit(gc, "floor color defined more than once", 1);

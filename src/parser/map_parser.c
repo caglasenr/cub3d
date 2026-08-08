@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   map_parser.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/08/07 15:58:21 by caglasener        #+#    #+#             */
+/*   Updated: 2026/08/07 15:58:21 by caglasener       ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 int	get_line_length(char *line)
@@ -47,12 +59,36 @@ void	append_map_line(char *line, t_map_line **list, t_gc **gc)
 	}
 }
 
+static void	fill_grid_row(t_config *cfg, t_map_line *curr, int y, t_gc **gc)
+{
+	int	x;
+
+	x = 0;
+	while (curr->line[x] && curr->line[x] != '\n')
+	{
+		if (!ft_strchr("01NSEWD ", curr->line[x]))
+			gc_free_all_and_exit(gc, "invalid character in map", 1);
+		cfg->map[y][x] = curr->line[x];
+		if (ft_strchr("NSEW", curr->line[x]))
+		{
+			if (cfg->player_dir)
+				gc_free_all_and_exit(gc,
+					"more than one player start in map", 1);
+			cfg->player_x = x;
+			cfg->player_y = y;
+			cfg->player_dir = curr->line[x];
+		}
+		x++;
+	}
+	while (x < cfg->map_w)
+		cfg->map[y][x++] = ' ';
+	cfg->map[y][x] = '\0';
+}
+
 void	build_final_grid(t_config *cfg, t_map_line *list, t_gc **gc)
 {
 	t_map_line	*curr;
 	int			y;
-	int			x;
-	bool		player_found;
 
 	calculate_map_dimensions(list, cfg);
 	if (cfg->map_h == 0)
@@ -60,34 +96,15 @@ void	build_final_grid(t_config *cfg, t_map_line *list, t_gc **gc)
 	cfg->map = gc_malloc(gc, sizeof(char *) * (cfg->map_h + 1));
 	curr = list;
 	y = 0;
-	player_found = false;
 	while (curr != NULL)
 	{
 		cfg->map[y] = gc_malloc(gc, sizeof(char) * (cfg->map_w + 1));
-		x = 0;
-		while (curr->line[x] && curr->line[x] != '\n')
-		{
-			if (!ft_strchr("01NSEWD ", curr->line[x]))
-				gc_free_all_and_exit(gc, "invalid character in map", 1);
-			cfg->map[y][x] = curr->line[x];
-			if (ft_strchr("NSEW", curr->line[x]))
-			{
-				if (player_found)
-					gc_free_all_and_exit(gc, "more than one player start in map", 1);
-				cfg->player_x = x;
-				cfg->player_y = y;
-				cfg->player_dir = curr->line[x];
-				player_found = true;
-			}
-			x++;
-		}
-		while (x < cfg->map_w)
-			cfg->map[y][x++] = ' ';
-		cfg->map[y][x] = '\0';
+		fill_grid_row(cfg, curr, y, gc);
 		y++;
 		curr = curr->next;
 	}
 	cfg->map[y] = NULL;
-	if (!player_found)
-		gc_free_all_and_exit(gc, "map is missing a player start (N, S, E or W)", 1);
+	if (!cfg->player_dir)
+		gc_free_all_and_exit(gc,
+			"map is missing a player start (N, S, E or W)", 1);
 }
