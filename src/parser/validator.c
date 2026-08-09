@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validator.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 15:58:21 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/07 15:58:21 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/09 15:23:20 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,13 +49,6 @@ static bool	init_flood_ctx(t_flood_ctx *ctx, t_config *cfg, char **copy,
 	return (true);
 }
 
-/*
-** Ozyinelemeli flood-fill yerine acik yigin kullanir: buyuk (acik alanli)
-** haritalarda ozyineleme derinligi bin/on binlerce cagriya cikip stack
-** tasmasina yol acabiliyordu. Her hucre en fazla bir kez itilir (push
-** aninda 'V' ile isaretlenir), o yuzden yigin en fazla map_w*map_h
-** buyuklugunde olur.
-*/
 bool	flood_fill(t_config *cfg, int x, int y, char **copy)
 {
 	t_flood_ctx	ctx;

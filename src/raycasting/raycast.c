@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycast.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 17:00:00 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/08 19:00:42 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/09 15:24:57 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,6 @@ static void	init_ray_step(t_ray *ray, t_player *player)
 	}
 }
 
-/*
-** DDA: siradaki hucre sinirina daha yakin olan eksende bir adim ilerler,
-** o hucre duvar ('1') ya da kapali kapi ('D') ise durur. Acik kapi ('o')
-** durdurmaz, isin icinden gecer.
-*/
 static void	dda_loop(t_ray *ray, t_config *cfg)
 {
 	char	cell;
@@ -86,13 +81,6 @@ static void	dda_loop(t_ray *ray, t_config *cfg)
 	}
 }
 
-/*
-** wall_x: carpma noktasinin duvar boyunca [0,1) araligindaki konumu.
-** side==0 ise dikey duvara carpilmistir, konum oyuncunun y'sinden ve
-** kat edilen mesafeden (perp_wall_dist * ray_dir_y) turetilir; side==1
-** icin ayni mantik x ekseninde uygulanir. floor() ile tam sayi kismi
-** atilir, geriye sadece hucre icindeki kesirli konum kalir.
-*/
 static void	calc_wall_x(t_ray *ray, t_player *player)
 {
 	if (ray->side == 0)

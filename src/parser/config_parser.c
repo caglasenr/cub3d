@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   config_parser.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 15:58:21 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/07 15:58:21 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/09 14:29:04 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,6 @@ static bool	parse_texture_config(char *line, int i, t_config *cfg, t_gc **gc)
 		save_texture(&(cfg->ea_path), line, i + 3, gc);
 	else if (ft_strncmp(line + i, "DO ", 3) == 0)
 		save_texture(&(cfg->door_path), line, i + 3, gc);
-	else if (ft_strncmp(line + i, "SP ", 3) == 0)
-		save_texture(&(cfg->sprite_path), line, i + 3, gc);
 	else
 		return (false);
 	return (true);

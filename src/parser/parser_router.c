@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_router.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 15:58:21 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/07 15:58:21 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/09 15:20:06 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int	check_extension(char *path)
 
 void	check_textures(t_config *cfg, t_gc **gc)
 {
-	char	*paths[6];
+	char	*paths[5];
 	int		i;
 	int		fd;
 
@@ -40,9 +40,8 @@ void	check_textures(t_config *cfg, t_gc **gc)
 	paths[2] = cfg->we_path;
 	paths[3] = cfg->ea_path;
 	paths[4] = cfg->door_path;
-	paths[5] = cfg->sprite_path;
 	i = -1;
-	while (++i < 6)
+	while (++i < 5)
 	{
 		if (!paths[i])
 			continue ;
@@ -53,13 +52,6 @@ void	check_textures(t_config *cfg, t_gc **gc)
 	}
 }
 
-// is_empty_line / is_config_line / is_map_line -> parser_utils.c'ye taşındı
-// (bu dosya norm'un 5-fonksiyon limitine takılıyordu)
-
-// Tek bir satırı işler: boşsa atla, config satırıysa parse_config'e ver,
-// harita satırıysa listeye ekle, hiçbiri değilse hata ver.
-// Döngü durumunu (fd, map_started, map_list) tek tek parametre yerine
-// t_parse_ctx üzerinden alıyor ki fonksiyon 4 parametre norm limitini aşmasın.
 static void	process_line(char *line, t_parse_ctx *ctx)
 {
 	if (is_empty_line(line))

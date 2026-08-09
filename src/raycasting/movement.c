@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   movement.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 17:00:00 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/08 17:55:16 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/09 15:24:28 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ void	move_s(t_game *game)
 		game->player.pos_y = new_y;
 }
 
-/* D tusu: yon vektorune dik olan (-dir_y, dir_x) vektorunu kullanir */
 void	move_d(t_game *game)
 {
 	double	new_x;
@@ -72,7 +71,6 @@ void	move_d(t_game *game)
 		game->player.pos_y = new_y;
 }
 
-/* A tusu: yon vektorune dik olan (dir_y, -dir_x) vektorunu kullanir */
 void	move_a(t_game *game)
 {
 	double	new_x;
