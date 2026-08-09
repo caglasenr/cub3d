@@ -26,7 +26,6 @@ The goal is not just to draw a maze, but to do it *correctly and cleanly*: parsi
 ### Compilation
 ```bash
 make          # builds the mandatory part
-make bonus    # builds the bonus part (if implemented)
 make clean    # removes object files
 make fclean   # removes object files and the binary
 make re       # rebuilds from scratch
