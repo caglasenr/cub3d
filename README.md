@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by <iogul>, <csener>.*
+*This project has been created as part of the 42 curriculum by `iogul`, `csener`.*
 
 # cub3D
 
