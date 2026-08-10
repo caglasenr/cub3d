@@ -6,7 +6,7 @@
 /*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 15:58:21 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/09 15:22:55 by iogul            ###   ########.fr       */
+/*   Updated: 2026/08/09 19:56:43 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,7 @@ bool	is_config_line(char *line)
 		|| ft_strncmp(line + i, "SO ", 3) == 0
 		|| ft_strncmp(line + i, "WE ", 3) == 0
 		|| ft_strncmp(line + i, "EA ", 3) == 0
-		|| ft_strncmp(line + i, "DO ", 3) == 0
-		|| ft_strncmp(line + i, "SP ", 3) == 0)
+		|| ft_strncmp(line + i, "DO ", 3) == 0)
 		return (true);
 	if ((line[i] == 'F' || line[i] == 'C')
 		&& (line[i + 1] == ' ' || line[i + 1] == '\t'))

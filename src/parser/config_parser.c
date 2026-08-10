@@ -6,7 +6,7 @@
 /*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 15:58:21 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/09 14:29:04 by iogul            ###   ########.fr       */
+/*   Updated: 2026/08/10 15:44:58 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,4 +96,31 @@ void	parse_config(char *line, t_config *cfg, t_gc **gc)
 	}
 	else
 		gc_free_all_and_exit(gc, "invalid configuration identifier", 1);
+}
+
+void	check_textures(t_config *cfg, t_gc **gc)
+{
+	char	*paths[5];
+	int		i;
+	int		fd;
+	size_t	len;
+
+	paths[0] = cfg->no_path;
+	paths[1] = cfg->so_path;
+	paths[2] = cfg->we_path;
+	paths[3] = cfg->ea_path;
+	paths[4] = cfg->door_path;
+	i = -1;
+	while (++i < 5)
+	{
+		if (!paths[i])
+			continue ;
+		len = ft_strlen(paths[i]);
+		if (len < 5 || ft_strncmp(paths[i] + len - 4, ".xpm", 4) != 0)
+			gc_free_all_and_exit(gc, "invalid texture extension", 1);
+		fd = open(paths[i], O_RDONLY);
+		if (fd < 0)
+			gc_free_all_and_exit(gc, "cannot open a texture file", 1);
+		close(fd);
+	}
 }

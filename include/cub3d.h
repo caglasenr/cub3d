@@ -6,7 +6,7 @@
 /*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 16:26:59 by csener            #+#    #+#             */
-/*   Updated: 2026/08/09 15:22:01 by iogul            ###   ########.fr       */
+/*   Updated: 2026/08/10 14:55:34 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,7 @@ typedef struct s_parse_ctx
 	t_config	*cfg;
 	t_gc		**gc;
 	bool		map_started;
+	bool		map_ended;
 	t_map_line	*map_list;
 }	t_parse_ctx;
 
