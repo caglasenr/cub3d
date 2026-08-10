@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycast.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: csener <csener@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 17:00:00 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/08 19:00:42 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/10 15:05:43 by csener           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@ static void	init_ray_dir(t_ray *ray, t_player *player, double camera_x)
 {
 	ray->ray_dir_x = player->dir_x + player->plane_x * camera_x;
 	ray->ray_dir_y = player->dir_y + player->plane_y * camera_x;
-	ray->map_x = (int)player->pos_x;
-	ray->map_y = (int)player->pos_y;
 	if (ray->ray_dir_x == 0)
 		ray->delta_dist_x = 1e30;
 	else
@@ -30,6 +28,8 @@ static void	init_ray_dir(t_ray *ray, t_player *player, double camera_x)
 
 static void	init_ray_step(t_ray *ray, t_player *player)
 {
+	ray->map_x = (int)player->pos_x;
+	ray->map_y = (int)player->pos_y;
 	if (ray->ray_dir_x > 0)
 	{
 		ray->step_x = 1;
@@ -67,12 +67,14 @@ static void	dda_loop(t_ray *ray, t_config *cfg)
 	{
 		if (ray->side_dist_x < ray->side_dist_y)
 		{
+			ray->perp_wall_dist = ray->side_dist_x;
 			ray->side_dist_x += ray->delta_dist_x;
 			ray->map_x += ray->step_x;
 			ray->side = 0;
 		}
 		else
 		{
+			ray->perp_wall_dist = ray->side_dist_y;
 			ray->side_dist_y += ray->delta_dist_y;
 			ray->map_y += ray->step_y;
 			ray->side = 1;
@@ -86,24 +88,13 @@ static void	dda_loop(t_ray *ray, t_config *cfg)
 	}
 }
 
-/*
-** wall_x: carpma noktasinin duvar boyunca [0,1) araligindaki konumu.
-** side==0 ise dikey duvara carpilmistir, konum oyuncunun y'sinden ve
-** kat edilen mesafeden (perp_wall_dist * ray_dir_y) turetilir; side==1
-** icin ayni mantik x ekseninde uygulanir. floor() ile tam sayi kismi
-** atilir, geriye sadece hucre icindeki kesirli konum kalir.
-*/
 static void	calc_wall_x(t_ray *ray, t_player *player)
 {
-	if (ray->side == 0)
-		ray->perp_wall_dist = ray->side_dist_x - ray->delta_dist_x;
-	else
-		ray->perp_wall_dist = ray->side_dist_y - ray->delta_dist_y;
 	if (ray->side == 0)
 		ray->wall_x = player->pos_y + ray->perp_wall_dist * ray->ray_dir_y;
 	else
 		ray->wall_x = player->pos_x + ray->perp_wall_dist * ray->ray_dir_x;
-	ray->wall_x -= floor(ray->wall_x);
+	ray->wall_x = ray->wall_x - floor(ray->wall_x);
 }
 
 void	cast_ray(t_player *player, t_config *cfg, double camera_x, t_ray *ray)
