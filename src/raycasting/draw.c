@@ -3,21 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   draw.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 17:00:00 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/08 18:56:15 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/09 15:24:01 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 #include <mlx.h>
 
-/*
-** Hangi texture (0=NO,1=SO,2=WE,3=EA,4=DO) kullanilacagini secer:
-** kapiya carpildiysa dogrudan 4; degilse side ve isinin yon isaretinden
-** (kuzey/guney/dogu/bati) cikarilir.
-*/
 static int	get_face(t_ray *ray)
 {
 	if (ray->hit_char == 'D')
@@ -33,11 +28,6 @@ static int	get_face(t_ray *ray)
 	return (0);
 }
 
-/*
-** wall_x ([0,1) araligi) texture genisligine gore piksel sutununa
-** cevrilir; belirli yon/side kombinasyonlarinda texture aynalanir ki
-** duvarin iki yuzu de tutarli gorunsun.
-*/
 static int	get_tex_x(t_ray *ray, t_img *texture, int face)
 {
 	int	tex_x;
@@ -50,10 +40,6 @@ static int	get_tex_x(t_ray *ray, t_img *texture, int face)
 	return (tex_x);
 }
 
-/*
-** Her ekran satirinda tex_y, step kadar ilerletilerek texture'dan
-** okunur ve frame'e basilir.
-*/
 static void	draw_column(t_img *frame, t_img *texture, t_ray *ray, int x)
 {
 	int		face;

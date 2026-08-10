@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: csener <csener@student.42.fr>              +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/16 14:46:09 by csener            #+#    #+#             */
-/*   Updated: 2025/08/12 13:50:08 by csener           ###   ########.fr       */
+/*   Updated: 2026/08/10 16:44:10 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,12 +81,7 @@ static char	*update_storage(char *storage)
 	if (!storage)
 		return (NULL);
 	nl_ptr = ft_strchr(storage, '\n');
-	if (!nl_ptr)
-	{
-		free(storage);
-		return (NULL);
-	}
-	if (*(nl_ptr + 1) == '\0')
+	if (!nl_ptr || *(nl_ptr + 1) == '\0')
 	{
 		free(storage);
 		return (NULL);
@@ -98,10 +93,16 @@ static char	*update_storage(char *storage)
 
 char	*get_next_line(int fd)
 {
-	static char	*storage = NULL;
+	static char	*storage;
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0)
+	{
+		free(storage);
+		storage = NULL;
+		return (NULL);
+	}
+	if (BUFFER_SIZE <= 0)
 		return (NULL);
 	storage = read_and_join(fd, storage);
 	if (!storage)
@@ -111,8 +112,8 @@ char	*get_next_line(int fd)
 	{
 		free(storage);
 		storage = NULL;
-		return (NULL);
 	}
-	storage = update_storage(storage);
+	else
+		storage = update_storage(storage);
 	return (line);
 }

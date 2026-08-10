@@ -6,7 +6,7 @@
 /*   By: csener <csener@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 17:00:00 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/10 15:05:43 by csener           ###   ########.fr       */
+/*   Updated: 2026/08/10 19:06:42 by csener           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,6 @@ static void	init_ray_step(t_ray *ray, t_player *player)
 	}
 }
 
-/*
-** DDA: siradaki hucre sinirina daha yakin olan eksende bir adim ilerler,
-** o hucre duvar ('1') ya da kapali kapi ('D') ise durur. Acik kapi ('o')
-** durdurmaz, isin icinden gecer.
-*/
 static void	dda_loop(t_ray *ray, t_config *cfg)
 {
 	char	cell;

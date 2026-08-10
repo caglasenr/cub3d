@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 16:26:59 by csener            #+#    #+#             */
-/*   Updated: 2026/08/06 15:03:54 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/10 14:55:34 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,7 @@ typedef struct s_ray
 	int		draw_start;
 	int		draw_end;
 }	t_ray;
-/*
-** t_config: the parser's output and the data contract with the raycaster.
-** floor/ceiling hold R,G,B; each channel is -1 until the element is parsed.
-** map keeps every row exactly as it appears in the file (spaces preserved).
-*/
+
 typedef struct s_config
 {
 	char	*no_path;
@@ -110,40 +106,22 @@ typedef struct s_game
 	int			keys[65536];
 }	t_game;
 
-/*
-** t_gc: a simple linked-list allocator tracker. Every gc_malloc/gc_strdup
-** call is registered here so a single gc_free_all_and_exit() call can
-** release the whole parser's memory, even on an error exit.
-*/
-
-/*
-** t_map_line: temporary linked list the router appends map rows to while
-** reading the file, before build_final_grid() turns it into cfg->map.
-*/
 typedef struct s_map_line
 {
 	char				*line;
 	struct s_map_line	*next;
 }	t_map_line;
 
-/*
-** t_parse_ctx: bundles the mutable state parse_cub_file()'s line-by-line
-** loop needs, so process_line() can take it as a single argument.
-*/
 typedef struct s_parse_ctx
 {
 	int			fd;
 	t_config	*cfg;
 	t_gc		**gc;
 	bool		map_started;
+	bool		map_ended;
 	t_map_line	*map_list;
 }	t_parse_ctx;
 
-/*
-** t_cell / t_flood_ctx: validator.c'nin ozyinelemesiz (yigin tabanli)
-** flood_fill'i icin. leaked, kesif sirasinda harita sinirinin disina
-** ya da bos bir hucreye ulasilip ulasilmadigini tutar.
-*/
 typedef struct s_cell
 {
 	int	x;
@@ -160,12 +138,9 @@ typedef struct s_flood_ctx
 	bool	leaked;
 }	t_flood_ctx;
 
-/* ---- memory management (gc_utils.c) ---- */
 void	*gc_malloc(t_gc **gc, size_t size);
 char	*gc_strdup(t_gc **gc, const char *s1);
 void	gc_free_all_and_exit(t_gc **gc, char *err_msg, int exit_code);
-
-/* ---- entry point & routing (parser_router.c) ---- */
 void	init_config(t_config *cfg);
 int		check_extension(char *path);
 void	check_textures(t_config *cfg, t_gc **gc);
@@ -173,24 +148,16 @@ bool	is_empty_line(char *line);
 bool	is_config_line(char *line);
 bool	is_map_line(char *line);
 void	parse_cub_file(char *file_path, t_config *cfg, t_gc **gc);
-
-/* ---- scene elements & colors (config_parser.c) ---- */
 int		skip_whitespaces(char *line, int i);
 bool	is_all_digits(char *str);
 void	save_texture(char **target, char *line, int i, t_gc **gc);
 void	parse_color(int *target, char *line, int i, t_gc **gc);
 void	parse_config(char *line, t_config *cfg, t_gc **gc);
-
-/* ---- map building (map_parser.c) ---- */
 int		get_line_length(char *line);
 void	append_map_line(char *line, t_map_line **list, t_gc **gc);
 void	build_final_grid(t_config *cfg, t_map_line *list, t_gc **gc);
-
-/* ---- validation (validator.c) ---- */
 bool	flood_fill(t_config *cfg, int x, int y, char **copy);
 void	validate_map(t_config *cfg, t_gc **gc);
-
-/* ---- raycasting (src/raycasting/) ---- */
 void	init_player(t_config *cfg, t_player *player);
 void	cast_ray(t_player *player, t_config *cfg, double camera_x, t_ray *ray);
 void	wall_height(t_ray *ray);
@@ -206,14 +173,10 @@ int		key_release(int keycode, t_game *game);
 void	move_player(t_game *game);
 void	toggle_door(t_game *game);
 void	load_textures(t_game *game);
-
-/* ---- movement (movement.c) ---- */
 void	move_w(t_game *game);
 void	move_s(t_game *game);
 void	move_d(t_game *game);
 void	move_a(t_game *game);
-
-/* ---- camera rotation (rotation.c) ---- */
 void	rotate_right(t_game *game);
 void	rotate_left(t_game *game);
 

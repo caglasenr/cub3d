@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   gc_utils.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: caglasener <caglasener@student.42.fr>      +#+  +:+       +#+        */
+/*   By: iogul <iogul@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/07 15:57:34 by caglasener        #+#    #+#             */
-/*   Updated: 2026/08/07 15:57:34 by caglasener       ###   ########.fr       */
+/*   Updated: 2026/08/10 16:46:36 by iogul            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void	gc_free_all_and_exit(t_gc **gc, char *err_msg, int exit_code)
 	t_gc	*current;
 	t_gc	*next_node;
 
+	get_next_line(-1);
 	if (gc && *gc)
 	{
 		current = *gc;
@@ -67,4 +68,31 @@ char	*gc_strdup(t_gc **gc, const char *s1)
 	copy = gc_malloc(gc, len + 1);
 	ft_strlcpy(copy, s1, len + 1);
 	return (copy);
+}
+
+void	check_textures(t_config *cfg, t_gc **gc)
+{
+	char	*paths[5];
+	size_t	len;
+	int		i;
+	int		fd;
+
+	paths[0] = cfg->no_path;
+	paths[1] = cfg->so_path;
+	paths[2] = cfg->we_path;
+	paths[3] = cfg->ea_path;
+	paths[4] = cfg->door_path;
+	i = -1;
+	while (++i < 5)
+	{
+		if (!paths[i])
+			continue ;
+		len = ft_strlen(paths[i]);
+		if (len < 5 || ft_strncmp(paths[i] + len - 4, ".xpm", 4) != 0)
+			gc_free_all_and_exit(gc, "invalid texture extension", 1);
+		fd = open(paths[i], O_RDONLY);
+		if (fd < 0)
+			gc_free_all_and_exit(gc, "cannot open a texture file", 1);
+		close(fd);
+	}
 }
